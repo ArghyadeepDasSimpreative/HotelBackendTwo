@@ -3,11 +3,15 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 
 export const registerUser = async (req, res) => {
-  const { firstname, lastname, email, password } = req.body;
-
+  const { firstname, lastname, email, password, role } = req.body;
+console.log("role is role", role)
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "User already exists" });
+
+    if(["user", "propertyOwner", "admin"].includes(role) == false) {
+        return res.status(400).json({ message: "The role is not valid."})
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -15,7 +19,8 @@ export const registerUser = async (req, res) => {
       firstname,
       lastname,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      role
     });
 
     res.status(201).json({ message: "User registered", userId: newUser._id });
