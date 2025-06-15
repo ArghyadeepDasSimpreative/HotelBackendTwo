@@ -8,6 +8,9 @@ import cityRoutes from "./routes/city.routes.js";
 import { errorHandler } from "./utils/error.js";
 import featureRoutes from "./routes/feature.routes.js";
 import propertyRoutes from "./routes/property.routes.js";
+import roomRoutes from "./routes/room.routes.js";
+import bookingRoutes from "./routes/booking.routes.js";
+import transactionRoutes from "./routes/transation.routes.js";
 
 dotenv.config();
 
@@ -25,6 +28,9 @@ app.use("/amenities", amenityRoutes);
 app.use("/cities", cityRoutes);
 app.use("/features", featureRoutes);
 app.use("/properties", propertyRoutes);
+app.use("/rooms", roomRoutes);
+app.use("/bookings", bookingRoutes);
+app.use("/transactions", transactionRoutes);
 
 // Error handler middleware (should be last)
 app.use(errorHandler);

@@ -50,3 +50,19 @@ export const uploadMultipleFiles = (fieldName, maxCount = 5, folderPath = "uploa
   console.log(`🧾 Setting up multiple file upload for key: ${fieldName}, max count: ${maxCount}`);
   return getMulter(folderPath).array(fieldName, maxCount);
 };
+
+export const handleMulterErrors = (multerMiddleware) => {
+  return (req, res, next) => {
+    multerMiddleware(req, res, (err) => {
+      if (err instanceof multer.MulterError || err.message === "Unsupported file type") {
+        return res.status(400).json({
+          success: false,
+          message: err.message,
+        });
+      }
+      if (err) return next(err);
+      next();
+    });
+  };
+};
+

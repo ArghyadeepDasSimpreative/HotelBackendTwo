@@ -3,8 +3,12 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 
 export const registerUser = async (req, res) => {
-  const { firstname, lastname, email, password, role } = req.body;
-console.log("role is role", role)
+  const { firstname, lastname, email, password, role="user", phoneNumber } = req.body;
+  if(!firstname || !lastname || !email || !password || !phoneNumber ) {
+    return res.status(400).json({
+      message: "Please fill all data"
+    })
+  }
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: "User already exists" });
@@ -20,7 +24,8 @@ console.log("role is role", role)
       lastname,
       email,
       password: hashedPassword,
-      role
+      role,
+      phoneNumber
     });
 
     res.status(201).json({ message: "User registered", userId: newUser._id });

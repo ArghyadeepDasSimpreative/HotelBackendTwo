@@ -37,7 +37,7 @@ export const createProperty = async (req, res, next) => {
     const featureDocs = await Promise.all(
       featureIds.map((id) => Feature.findById(id))
     );
-    
+
     const filteredFeatureDocs = featureDocs.map(item => item._id.toString())
 
     const imageUrls = req.files?.map((file) => file.filename) || [];
@@ -64,3 +64,20 @@ export const createProperty = async (req, res, next) => {
     next(err);
   }
 };
+
+
+export const getAllProperties = async (req, res, next) => {
+  try {
+    const properties = await Property.find()
+      .select("_id name description address cityId images features latitude longitude")
+      .populate("cityId", "name")
+      .populate("features", "name");
+
+    res.status(200).json({ success: true, properties });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
