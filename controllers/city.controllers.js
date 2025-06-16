@@ -54,3 +54,29 @@ export const deleteCity = async (req, res, next) => {
     next(err)
   }
 }
+
+export const updateCityImage = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "Image file is required" });
+    }
+
+    const city = await City.findById(id);
+    if (!city) {
+      return res.status(404).json({ success: false, message: "City not found" });
+    }
+
+    city.image = req.file.filename;
+    await city.save();
+
+    res.status(200).json({
+      success: true,
+      message: "City image updated successfully",
+      image: city.image
+    });
+  } catch (err) {
+    next(err);
+  }
+};

@@ -89,7 +89,7 @@ export const makePayment = async (req, res, next) => {
     }
 
     if (booking.paymentStatus === "paid") {
-      return res.status(400).json({ success: false, message: "Booking already paid" });
+      return res.status(400).json({ success: false, message: "You have already paid for this booking" });
     }
 
     // Simulated transaction ID
@@ -141,6 +141,39 @@ export const cancelBooking = async (req, res, next) => {
     await booking.save();
 
     res.status(200).json({ success: true, message: "Booking cancelled successfully", booking });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const completeBooking = async (req, res, next) => {
+  try {
+    const { bookingId } = req.params;
+    const userId = req.user._id;
+
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    if (booking.status === "cancelled" || booking.status === "completed") {
+      return res.status(400).json({ success: false, message: `Cannot complete a ${booking.status} booking` });
+    }
+
+    const room = await Room.findById(booking.roomId);
+    if (!room) {
+      return res.status(404).json({ success: false, message: "Room not found" });
+    }
+
+    const property = await Property.findById(room.propertyId);
+    if (!property || property.ownerId.toString() !== userId.toString()) {
+      return res.status(403).json({ success: false, message: "Unauthorized to complete this booking" });
+    }
+
+    booking.status = "completed";
+    await booking.save();
+
+    res.status(200).json({ success: true, message: "Booking marked as completed", booking });
   } catch (err) {
     next(err);
   }

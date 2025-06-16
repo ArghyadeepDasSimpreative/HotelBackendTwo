@@ -23,7 +23,7 @@ const createStorage = (folderPath = "uploads") => {
 };
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|svg|webp|pdf/;
+  const allowedTypes = /jpeg|jpg|png|svg|webp|pdf|jfif/;
   const ext = path.extname(file.originalname).toLowerCase();
   if (allowedTypes.test(ext)) {
     console.log(`✅ Accepted file type: ${file.originalname}`);

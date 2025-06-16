@@ -11,6 +11,7 @@ import propertyRoutes from "./routes/property.routes.js";
 import roomRoutes from "./routes/room.routes.js";
 import bookingRoutes from "./routes/booking.routes.js";
 import transactionRoutes from "./routes/transation.routes.js";
+import reviewRoutes from "./routes/review.routes.js";
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use("/properties", propertyRoutes);
 app.use("/rooms", roomRoutes);
 app.use("/bookings", bookingRoutes);
 app.use("/transactions", transactionRoutes);
+app.use("/reviews", reviewRoutes);
 
 // Error handler middleware (should be last)
 app.use(errorHandler);
