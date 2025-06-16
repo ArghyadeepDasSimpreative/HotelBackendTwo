@@ -20,9 +20,6 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("API is running");
-});
 
 app.use("/auth", authRoutes);
 app.use("/amenities", amenityRoutes);
