@@ -42,12 +42,12 @@ const getMulter = (folderPath = "uploads") =>
   });
 
 export const uploadSingleFile = (fieldName, folderPath = "uploads") => {
-  console.log(`🧾 Setting up single file upload for key: ${fieldName}`);
+  // console.log(`🧾 Setting up single file upload for key: ${fieldName}`);
   return getMulter(folderPath).single(fieldName);
 };
 
 export const uploadMultipleFiles = (fieldName, maxCount = 5, folderPath = "uploads") => {
-  console.log(`🧾 Setting up multiple file upload for key: ${fieldName}, max count: ${maxCount}`);
+  // console.log(`🧾 Setting up multiple file upload for key: ${fieldName}, max count: ${maxCount}`);
   return getMulter(folderPath).array(fieldName, maxCount);
 };
 

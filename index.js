@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import path from "path";
 import { connectDB } from "./config/connection.js";
 import authRoutes from "./routes/user.routes.js";
 import amenityRoutes from "./routes/amenity.routes.js";
@@ -12,6 +13,7 @@ import roomRoutes from "./routes/room.routes.js";
 import bookingRoutes from "./routes/booking.routes.js";
 import transactionRoutes from "./routes/transation.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
+import customerRoutes from "./routes/customer.routes.js";
 
 dotenv.config();
 
@@ -20,6 +22,8 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+// ✅ Serve static files from uploads folder
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use("/auth", authRoutes);
 app.use("/amenities", amenityRoutes);
@@ -30,6 +34,7 @@ app.use("/rooms", roomRoutes);
 app.use("/bookings", bookingRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/reviews", reviewRoutes);
+app.use("/customers", customerRoutes);
 
 // Error handler middleware (should be last)
 app.use(errorHandler);

@@ -13,7 +13,7 @@ const roomSchema = new mongoose.Schema(
     },
     roomType: {
       type: String,
-      required: true, // e.g., Single, Double, Suite
+      required: true,
     },
     description: {
       type: String,
@@ -37,11 +37,15 @@ const roomSchema = new mongoose.Schema(
         ref: "Amenity",
       },
     ],
-    images: [
-      {
-        type: String, // Local file path or filename
+    images: {
+      type: [String],
+      validate: {
+        validator: function (val) {
+          return val.length <= 4;
+        },
+        message: "A room can have a maximum of 4 images",
       },
-    ],
+    },
     thumbnail: {
       type: String,
     },

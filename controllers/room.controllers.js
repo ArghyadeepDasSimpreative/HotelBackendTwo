@@ -1,6 +1,7 @@
 import Room from "../models/room.model.js";
 import Property from "../models/property.model.js";
 import Amenity from "../models/amenity.model.js";
+import { deleteFile } from "../utils/file.js";
 
 const allowedRoomTypes = ["single", "double", "suite", "deluxe", "family"];
 
@@ -114,8 +115,6 @@ export const getRoomById = async (req, res, next) => {
   try {
     const { roomId } = req.params;
 
-    console.log("rrom id ", roomId);
-
     const room = await Room.findById(roomId)
       .populate("propertyId", "name cityId address")
       .populate("amenities", "name description");
@@ -175,6 +174,43 @@ export const updateRoomAmenities = async (req, res, next) => {
   }
 };
 
+export const addRoomImage = async (req, res, next) => {
+  try {
+    const { roomId } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });
+    }
+
+    const room = await Room.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ success: false, message: "Room not found" });
+    }
+
+    const newImage = req.file.filename;
+
+    if (!room.images.includes(newImage)) {
+      room.images.push(newImage);
+    }
+
+    // Set thumbnail if it doesn't exist
+    if (!room.thumbnail) {
+      room.thumbnail = newImage;
+    }
+
+    await room.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Image added successfully",
+      images: room.images,
+      thumbnail: room.thumbnail,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const getRoomsByCity = async (req, res, next) => {
   try {
     const { cityId } = req.params;
@@ -207,6 +243,75 @@ export const getRoomsByCity = async (req, res, next) => {
 
     res.status(200).json({ success: true, rooms: filteredRooms });
   } catch (err) {
+    next(err);
+  }
+};
+
+export const toggleRoomActivation = async (req, res, next) => {
+  try {
+    const { roomId, propertyId } = req.params;
+
+    const property = await Property.findById(propertyId);
+    if (!property) {
+      return res.status(404).json({ success: false, message: "Property not found" });
+    }
+
+    if (property.ownerId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: "You do not own this property" });
+    }
+
+    const room = await Room.findOne({ _id: roomId, propertyId });
+    if (!room) {
+      return res.status(404).json({ success: false, message: "Room not found for this property" });
+    }
+
+    room.isActive = !room.isActive;
+    await room.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Room is now ${room.isActive ? "activated" : "deactivated"}`,
+      isActive: room.isActive,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteRoomImage = async (req, res, next) => {
+  try {
+    const { roomId, fileName } = req.params;
+
+    if (!fileName) {
+      return res.status(400).json({ success: false, message: "File name is required" });
+    }
+
+    const room = await Room.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ success: false, message: "Room not found" });
+    }
+
+    if (!room.images.includes(fileName)) {
+      return res.status(400).json({ success: false, message: "Image not found in room" });
+    }
+
+    const updatedImages = room.images.filter((img) => img !== fileName);
+    room.images = updatedImages;
+
+    if (room.thumbnail === fileName) {
+      room.thumbnail = updatedImages[0] || null;
+    }
+
+    const fileDeleted = deleteFile(fileName);
+    if (!fileDeleted) {
+      return res.status(500).json({ success: false, message: "Failed to delete file" });
+    }
+
+    await room.save();
+
+    res.status(200).json({ success: true, message: "Image deleted successfully", images: room.images });
+  } catch (err) {
+    console.log(err)
     next(err);
   }
 };

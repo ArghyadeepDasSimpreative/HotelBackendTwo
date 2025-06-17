@@ -13,7 +13,7 @@ const featureRoutes = express.Router();
 featureRoutes.post("/", authorize(["admin"]), featuresCreate);
 featureRoutes.put("/:id", authorize(["admin"]), featuresUpdate);
 featureRoutes.delete("/:id", authorize(["admin"]), featuresDelete);
-featureRoutes.get("/", authorize(["admin"]), featuresGetAll);
+featureRoutes.get("/", authorize(["admin", "propertyOwner"]), featuresGetAll);
 featureRoutes.get("/:id", authorize(["admin"]), featuresGetById);
 
 export default featureRoutes;

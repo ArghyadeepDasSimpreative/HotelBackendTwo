@@ -18,7 +18,7 @@ export const authorize = (allowedRoles) => {
 
       const userFound = await User.findById(decoded.id);
 
-      // console.log("user found is ", userFound,  " and the allowed roles is ", allowedRoles);
+  //  console.log("user found is ", userFound,  " and the allowed roles is ", allowedRoles);
       if(!userFound) {
         return res.satus(404).json({message: "User not found"});
       }
