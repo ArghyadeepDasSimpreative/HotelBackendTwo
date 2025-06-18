@@ -82,8 +82,9 @@ export const getAllProperties = async (req, res, next) => {
 export const getMyProperties = async (req, res, next) => {
   try {
     const ownerId = req.user._id;
+    console.log("owner id is ", ownerId)
 
-    const properties = await Property.find({ owner: ownerId }).sort({ createdAt: -1 });
+    const properties = await Property.find({ ownerId }).sort({ createdAt: -1 });
 
     res.status(200).json(properties);
   } catch (err) {
