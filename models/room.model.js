@@ -31,6 +31,10 @@ const roomSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    discount: {
+      type: Number,
+      default: 0,
+    },
     amenities: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -316,5 +316,45 @@ export const deleteRoomImage = async (req, res, next) => {
   }
 };
 
+export const updateRoomDiscount = async (req, res, next) => {
+  try {
+    const { roomId } = req.params;
+    const { discount } = req.body;
+
+    if (discount === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Discount value is required",
+      });
+    }
+
+    if (isNaN(discount) || discount < 0 || discount > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Discount must be a number between 0 and 100",
+      });
+    }
+
+    const room = await Room.findById(roomId);
+    if (!room) {
+      return res.status(404).json({
+        success: false,
+        message: "Room not found",
+      });
+    }
+
+    room.discount = discount;
+    await room.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Room discount updated successfully",
+      room,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 
