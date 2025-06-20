@@ -38,6 +38,14 @@ export const createProperty = async (req, res, next) => {
       featureIds.map((id) => Feature.findById(id))
     );
 
+    console.log("feature docs are ", featureDocs)
+
+    if(featureDocs.some(item => item == null)) {
+      return res.status(400).json({
+        message: "Some feature are not found"
+      })
+    }
+
     const filteredFeatureDocs = featureDocs.map(item => item._id.toString())
 
     const imageUrls = req.files?.map((file) => file.filename) || [];

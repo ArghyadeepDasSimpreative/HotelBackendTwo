@@ -13,7 +13,7 @@ import { uploadSingleFile } from "../middlewares/fileupload.js";
 const cityRoutes = express.Router()
 
 cityRoutes.post("/",authorize(["admin"]), createCity);
-cityRoutes.get("/",authorize(["admin", "propertyOwner"]), getAllCities);
+cityRoutes.get("/",authorize(["admin", "propertyOwner", "user"]), getAllCities);
 cityRoutes.get("/:id",authorize(["admin"]), getCityById);
 cityRoutes.put("/:id",authorize(["admin"]), updateCity);
 cityRoutes.delete("/:id",authorize(["admin"]), deleteCity);
