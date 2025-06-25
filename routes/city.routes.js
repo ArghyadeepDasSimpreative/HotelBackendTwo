@@ -8,7 +8,7 @@ import {
   updateCityImage
 } from "../controllers/city.controllers.js"
 import { authorize } from "../middlewares/authorize.js"
-import { uploadSingleFile } from "../middlewares/fileupload.js";
+import { uploadSingleFile, uploadToImageKit } from "../middlewares/fileupload.js";
 
 const cityRoutes = express.Router()
 
@@ -17,6 +17,6 @@ cityRoutes.get("/",authorize(["admin", "propertyOwner", "user"]), getAllCities);
 cityRoutes.get("/:id",authorize(["admin"]), getCityById);
 cityRoutes.put("/:id",authorize(["admin"]), updateCity);
 cityRoutes.delete("/:id",authorize(["admin"]), deleteCity);
-cityRoutes.put("/:id/image", authorize(["admin"]), uploadSingleFile("image"), updateCityImage);
+cityRoutes.put("/:id/image", authorize(["admin"]), uploadSingleFile("image"), uploadToImageKit, updateCityImage);
 
 export default cityRoutes;

@@ -12,7 +12,7 @@ export const createCity = async (req, res, next) => {
 
 export const getAllCities = async (req, res, next) => {
   try {
-    const cities = await City.find().select('_id name description').sort({ createdAt: -1 })
+    const cities = await City.find().select('_id name description image').sort({ createdAt: -1 })
     res.status(200).json({ success: true, data: cities })
   } catch (err) {
     next(err)
@@ -60,7 +60,7 @@ export const updateCityImage = async (req, res, next) => {
     const { id } = req.params;
 
     if (!req.file) {
-      return res.status(400).json({ success: false, message: "Image file is required" });
+      return res.status(400).json({ success: false, message: "Image not found." });
     }
 
     const city = await City.findById(id);
@@ -68,7 +68,7 @@ export const updateCityImage = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "City not found" });
     }
 
-    city.image = req.file.filename;
+    city.image = req.file.imagekit.url;
     await city.save();
 
     res.status(200).json({
@@ -80,3 +80,4 @@ export const updateCityImage = async (req, res, next) => {
     next(err);
   }
 };
+

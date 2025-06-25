@@ -178,3 +178,58 @@ export const completeBooking = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getOwnerRoomBookings = async (req, res) => {
+  try {
+    const ownerId = req.user._id;
+
+    const ownerProperties = await Property.find({ ownerId }).select("_id");
+    const propertyIds = ownerProperties.map(p => p._id.toString());
+
+    const ownerRooms = await Room.find({ propertyId: { $in: propertyIds } })
+      .select("_id pricePerNight discount");
+    const roomMap = {};
+    const roomIds = ownerRooms.map(room => {
+      roomMap[room._id.toString()] = room;
+      return room._id;
+    });
+
+    // Step 3: Get bookings of these rooms
+    const bookings = await Booking.find({ roomId: { $in: roomIds } })
+      .populate("userId", "name email")
+      .populate("roomId"); // removed field filter to avoid populate failure
+
+    // Step 4: Construct response
+    const response = bookings.map(booking => {
+      const roomRaw = roomMap[booking.roomId._id.toString()];
+      const price = roomRaw?.pricePerNight || 0;
+      const discount = roomRaw?.discount || 0;
+      const discountedPrice = price - (price * discount / 100);
+
+      return {
+        bookingId: booking._id,
+        customer: booking.userId,
+        room: booking.roomId,
+        original_price: price,
+        discount_percent: discount,
+        discounted_price: discountedPrice,
+        check_in: booking.checkInDate,
+        check_out: booking.checkOutDate,
+        guests: booking.guests,
+        total_amount: booking.totalAmount,
+        status: booking.status,
+        payment_status: booking.paymentStatus,
+      };
+    });
+
+    res.status(200).json({
+      total: response.length,
+      bookings: response,
+    });
+
+  } catch (err) {
+    console.error("Error fetching bookings:", err);
+    res.status(500).json({ message: "Failed to fetch bookings." });
+  }
+};
+

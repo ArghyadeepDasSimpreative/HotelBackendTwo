@@ -1,6 +1,7 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import imagekit from "../config/imagekit.js";
 
 const createStorage = (folderPath = "uploads") => {
   if (!fs.existsSync(folderPath)) {
@@ -65,4 +66,34 @@ export const handleMulterErrors = (multerMiddleware) => {
     });
   };
 };
+
+
+export const uploadToImageKit = async (req, res, next) => {
+  try {
+    if (!req.file) return next();
+
+    const filePath = req.file.path;
+    const fileBuffer = fs.readFileSync(filePath);
+
+    const result = await imagekit.upload({
+      file: fileBuffer,
+      fileName: req.file.filename,
+      folder: "real-estate-app/cities",
+    });
+
+    fs.unlinkSync(filePath); // Delete local file after upload
+
+    req.file.imagekit = {
+      url: result.url,
+      fileId: result.fileId,
+    };
+
+    console.log("image is ", req.file.imagekit);
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
+
 

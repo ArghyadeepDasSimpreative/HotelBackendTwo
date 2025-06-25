@@ -22,6 +22,7 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
+
 // ✅ Serve static files from uploads folder
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
@@ -36,7 +37,7 @@ app.use("/transactions", transactionRoutes);
 app.use("/reviews", reviewRoutes);
 app.use("/customers", customerRoutes);
 
-// Error handler middleware (should be last)
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
