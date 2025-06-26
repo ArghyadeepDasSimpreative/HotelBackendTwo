@@ -18,6 +18,8 @@ export const addAmenity = async (req, res) => {
   }
 }
 
+//
+
 export const getAllAmenities = async (req, res, next) => {
   try {
     const amenities = await Amenity.find()
