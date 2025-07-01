@@ -7,7 +7,7 @@ const allowedRoomTypes = ["single", "double", "suite", "deluxe", "family"];
 
 export const createRoom = async (req, res, next) => {
   try {
-    console.log("req.body is ", req.body);
+
     const {
       roomNumber,
       roomType,
@@ -18,6 +18,7 @@ export const createRoom = async (req, res, next) => {
       policies,
       area,
       amenities,
+      name
     } = req.body;
 
     const { propertyId } = req.params;
@@ -29,7 +30,8 @@ export const createRoom = async (req, res, next) => {
       !description ||
       !bedCount ||
       !capacity ||
-      !price
+      !price ||
+      !name
     ) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
@@ -55,9 +57,10 @@ export const createRoom = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Thumbnail image is required" });
     }
 
-    const thumbnail = req.file.filename;
+    const thumbnail = req.file.imagekit.url;
 
     const room = await Room.create({
+      name,
       propertyId,
       roomNumber,
       roomType: normalizedRoomType,
@@ -83,7 +86,7 @@ export const getRoomsByPropertyId = async (req, res, next) => {
     const { propertyId } = req.params;
 
     const rooms = await Room.find({ propertyId })
-      .select("_id title description roomType price capacity thumbnail isActive");
+      .select("_id title description roomType price capacity thumbnail isActive name");
 
     res.status(200).json({ success: true, rooms });
   } catch (err) {
@@ -95,13 +98,11 @@ export const getRoomsByOwnerId = async (req, res, next) => {
   try {
     const ownerId = req.user._id;
 
-    console.log("owner id is ", ownerId)
-
     const properties = await Property.find({ ownerId }).select("_id");
-    console.log("added properties are ", properties)
     const propertyIds = properties.map((p) => p._id);
 
     const rooms = await Room.find({ propertyId: { $in: propertyIds } })
+      .select("roomNumber roomType description bedCount capacity pricePerNight discount isAvailable isActive area policies thumbnail images amenities propertyId name")
       .populate("propertyId", "name cityId address")
       .populate("amenities", "name description");
 
@@ -214,38 +215,50 @@ export const addRoomImage = async (req, res, next) => {
 export const getRoomsByCity = async (req, res, next) => {
   try {
     const { cityId } = req.params;
+    const { search } = req.query;
 
     if (!cityId) {
       return res.status(400).json({ success: false, message: "City ID is required" });
     }
 
-    // Get all properties in the given city
-    const properties = await Property.find({ cityId }).select("_id");
+    const properties = await Property.find({ cityId }).select("_id name address");
 
-    if (properties.length === 0) {
+    if (!properties.length) {
       return res.status(404).json({ success: false, message: "No properties found in this city" });
     }
 
-    const propertyIds = properties.map(p => p._id);
+    const allRooms = [];
 
-    // For each property, get one room (e.g., the first)
-    const rooms = await Promise.all(
-      propertyIds.map(async propertyId => {
-        return await Room.findOne({ propertyId })
-          .populate("propertyId", "name address")
-          .select("-__v")
-          .lean();
+    for (const property of properties) {
+      const rooms = await Room.find({
+        propertyId: property._id,
+        ...(search && {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { roomType: { $regex: search, $options: "i" } },
+          ],
+        }),
       })
-    );
+        .populate("amenities", "name")
+        .select("-__v -createdAt -updatedAt")
+        .lean();
 
-    // Filter out nulls in case any property has no room
-    const filteredRooms = rooms.filter(Boolean);
+      rooms.forEach((room) => {
+        allRooms.push({
+          ...room,
+          propertyName: property.name,
+          propertyAddress: property.address,
+        });
+      });
+    }
 
-    res.status(200).json({ success: true, rooms: filteredRooms });
+    res.status(200).json({ success: true, rooms: allRooms });
   } catch (err) {
     next(err);
   }
 };
+
+
 
 export const toggleRoomActivation = async (req, res, next) => {
   try {
@@ -355,6 +368,8 @@ export const updateRoomDiscount = async (req, res, next) => {
     next(err);
   }
 };
+
+
 
 
 

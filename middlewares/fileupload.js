@@ -88,8 +88,6 @@ export const uploadToImageKit = async (req, res, next) => {
       fileId: result.fileId,
     };
 
-    console.log("image is ", req.file.imagekit);
-
     next();
   } catch (err) {
     next(err);
