@@ -16,6 +16,6 @@ roomRoutes.put("/:propertyId/room/:roomId/toggle-active", authorize(["propertyOw
 roomRoutes.delete("/:propertyId/room/:roomId/image/:fileName", authorize(["propertyOwner"]),verifyPropertyOwnership, deleteRoomImage);
 roomRoutes.post("/:propertyId/room/:roomId/image", authorize(["propertyOwner"]), uploadSingleFile("image"), uploadToImageKit, addRoomImage);
 roomRoutes.put("/:propertyId/room/:roomId/discount", authorize(["propertyOwner"]), updateRoomDiscount);
-roomRoutes.get("/city/:cityId/nearby", authorize(["user", "admin"]), getRoomsNearby);
+roomRoutes.post("/city/:cityId/nearby", authorize(["user", "admin"]), getRoomsNearby);
 
 export default roomRoutes;
