@@ -98,12 +98,14 @@ export const getRoomsByOwnerId = async (req, res, next) => {
   try {
     const ownerId = req.user._id;
 
+    // Get all property _ids owned by the user
     const properties = await Property.find({ ownerId }).select("_id");
     const propertyIds = properties.map((p) => p._id);
 
+    // Fetch all rooms that belong to those properties
     const rooms = await Room.find({ propertyId: { $in: propertyIds } })
       .select("roomNumber roomType description bedCount capacity pricePerNight discount isAvailable isActive area policies thumbnail images amenities propertyId name")
-      .populate("propertyId", "name cityId address")
+      .populate("propertyId", "name cityId address location") // Include location here
       .populate("amenities", "name description");
 
     res.status(200).json({ success: true, rooms });
@@ -111,6 +113,7 @@ export const getRoomsByOwnerId = async (req, res, next) => {
     next(err);
   }
 };
+
 
 export const getRoomById = async (req, res, next) => {
   try {
@@ -364,6 +367,47 @@ export const updateRoomDiscount = async (req, res, next) => {
       message: "Room discount updated successfully",
       room,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getRoomsNearby = async (req, res, next) => {
+  try {
+    const { cityId } = req.params;
+    const { longitude, latitude, distance } = req.body;
+
+    if (!longitude || !latitude || !distance || !cityId) {
+      return res.status(400).json({ success: false, message: "longitude, latitude, distance, and cityId are required" });
+    }
+
+    const lng = parseFloat(longitude);
+    const lat = parseFloat(latitude);
+    const dist = parseFloat(distance);
+
+    // STEP 1: Filter properties by city and location proximity
+    const nearbyProperties = await Property.find({
+      cityId,
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lng, lat],
+          },
+          $maxDistance: dist
+        }
+      }
+    }).select("_id");
+
+    const propertyIds = nearbyProperties.map((p) => p._id);
+
+    // STEP 2: Get all rooms for those properties
+    const rooms = await Room.find({ propertyId: { $in: propertyIds } })
+      .select("roomNumber roomType description bedCount capacity pricePerNight discount isAvailable isActive area policies thumbnail images amenities propertyId name")
+      .populate("propertyId", "name cityId address location")
+      .populate("amenities", "name description");
+
+    res.status(200).json({ success: true, rooms });
   } catch (err) {
     next(err);
   }

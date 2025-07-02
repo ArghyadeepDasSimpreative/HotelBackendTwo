@@ -9,8 +9,20 @@ const propertySchema = new mongoose.Schema(
     cityId: { type: mongoose.Schema.Types.ObjectId, ref: "City", required: true },
     address: { type: String, required: true },
     pincode: { type: String },
-    latitude: { type: Number },
-    longitude: { type: Number },
+    
+    // Replacing latitude & longitude with GeoJSON location
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: true
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: true
+      }
+    },
+
     features: [{ type: mongoose.Schema.Types.ObjectId, ref: "Feature" }],
     images: [String],
     thumbnail: { type: String },
@@ -20,6 +32,9 @@ const propertySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// 2dsphere index for geospatial queries
+propertySchema.index({ location: "2dsphere" });
 
 const Property = mongoose.model("Property", propertySchema);
 
