@@ -9,7 +9,7 @@ const roomRoutes = express.Router();
 roomRoutes.post("/:propertyId", authorize(["propertyOwner"]), verifyPropertyOwnership, uploadSingleFile("image"), uploadToImageKit, createRoom);
 roomRoutes.get("/:propertyId", authorize(["propertyOwner"]), verifyPropertyOwnership,  getRoomsByPropertyId);
 roomRoutes.get("/", authorize(["propertyOwner"]), getRoomsByOwnerId);
-roomRoutes.get("/:propertyId/room/:roomId", authorize(["propertyOwner", "user"]), verifyPropertyOwnership, getRoomById);
+roomRoutes.get("/:propertyId/room/:roomId", authorize(["propertyOwner", "user"]), getRoomById);
 roomRoutes.put("/:propertyId/room/:roomId/amenities", authorize(["propertyOwner"]), verifyPropertyOwnership, updateRoomAmenities);
 roomRoutes.get("/city/:cityId", authorize(["user", "admin"]), getRoomsByCity);
 roomRoutes.put("/:propertyId/room/:roomId/toggle-active", authorize(["propertyOwner"]), verifyPropertyOwnership, toggleRoomActivation);
