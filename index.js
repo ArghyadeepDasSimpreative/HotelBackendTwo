@@ -14,6 +14,7 @@ import bookingRoutes from "./routes/booking.routes.js";
 import transactionRoutes from "./routes/transation.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
+import favouriteRoutes from "./routes/favourite.routes.js";
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use("/bookings", bookingRoutes);
 app.use("/transactions", transactionRoutes);
 app.use("/reviews", reviewRoutes);
 app.use("/customers", customerRoutes);
+app.use("/favourites", favouriteRoutes);
 
 
 app.use(errorHandler);

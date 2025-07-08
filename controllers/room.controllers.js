@@ -120,7 +120,7 @@ export const getRoomById = async (req, res, next) => {
     const { roomId } = req.params;
 
     const room = await Room.findById(roomId)
-      .populate("propertyId", "name cityId address")
+      .populate("propertyId", "name cityId address location")
       .populate("amenities", "name description");
 
     if (!room) {
@@ -191,7 +191,9 @@ export const addRoomImage = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Room not found" });
     }
 
-    const newImage = req.file.filename;
+    const newImage = req.file.imagekit.url;
+
+    console.log("guguugu", newImage)
 
     if (!room.images.includes(newImage)) {
       room.images.push(newImage);
