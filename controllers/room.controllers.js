@@ -2,6 +2,7 @@ import Room from "../models/room.model.js";
 import Property from "../models/property.model.js";
 import Amenity from "../models/amenity.model.js";
 import { deleteFile } from "../utils/file.js";
+import Favorite from "../models/favourite.model.js";
 
 const allowedRoomTypes = ["single", "double", "suite", "deluxe", "family"];
 
@@ -118,6 +119,7 @@ export const getRoomsByOwnerId = async (req, res, next) => {
 export const getRoomById = async (req, res, next) => {
   try {
     const { roomId } = req.params;
+    const userId = req.user._id;
 
     const room = await Room.findById(roomId)
       .populate("propertyId", "name cityId address location")
@@ -127,11 +129,18 @@ export const getRoomById = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Room not found" });
     }
 
-    res.status(200).json({ success: true, room });
+    const isFavorited = await Favorite.exists({ userId, roomId });
+
+    res.status(200).json({
+      success: true,
+      room,
+      isFavorited: !!isFavorited,
+    });
   } catch (err) {
     next(err);
   }
 };
+
 
 export const updateRoomAmenities = async (req, res, next) => {
   try {

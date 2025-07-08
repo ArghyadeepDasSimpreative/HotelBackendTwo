@@ -13,12 +13,21 @@ export const toggleFavorite = async (req, res, next) => {
 
     if (existing) {
       await Favorite.deleteOne({ _id: existing._id });
-      return res.status(200).json({ success: true, message: "Removed from favorites" });
+      return res.status(200).json({
+        success: true,
+        message: "Removed from favorites",
+        isFavorited: false,
+      });
     } else {
       await Favorite.create({ userId, roomId });
-      return res.status(201).json({ success: true, message: "Added to favorites" });
+      return res.status(201).json({
+        success: true,
+        message: "Added to favorites",
+        isFavorited: true,
+      });
     }
   } catch (err) {
     next(err);
   }
 };
+
