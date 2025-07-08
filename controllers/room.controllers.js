@@ -3,6 +3,7 @@ import Property from "../models/property.model.js";
 import Amenity from "../models/amenity.model.js";
 import { deleteFile } from "../utils/file.js";
 import Favorite from "../models/favourite.model.js";
+import RoomDiscount from "../models/discount.model.js";
 
 const allowedRoomTypes = ["single", "double", "suite", "deluxe", "family"];
 
@@ -131,15 +132,26 @@ export const getRoomById = async (req, res, next) => {
 
     const isFavorited = await Favorite.exists({ userId, roomId });
 
+    // Get the currently active discount (if any)
+    const today = new Date();
+    const currentDiscount = await RoomDiscount.findOne({
+      roomId,
+      startDate: { $lte: today },
+      endDate: { $gte: today },
+    }).select("name rate startDate endDate");
+    console.log("current discount is ", currentDiscount.rate)
+
     res.status(200).json({
       success: true,
       room,
       isFavorited: !!isFavorited,
+      currentDiscount: currentDiscount.rate || null,
     });
   } catch (err) {
     next(err);
   }
 };
+
 
 
 export const updateRoomAmenities = async (req, res, next) => {

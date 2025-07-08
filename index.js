@@ -15,6 +15,7 @@ import transactionRoutes from "./routes/transation.routes.js";
 import reviewRoutes from "./routes/review.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
 import favouriteRoutes from "./routes/favourite.routes.js";
+import discountRoutes from "./routes/discount.routes.js";
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use("/transactions", transactionRoutes);
 app.use("/reviews", reviewRoutes);
 app.use("/customers", customerRoutes);
 app.use("/favourites", favouriteRoutes);
+app.use("/discounts", discountRoutes);
 
 
 app.use(errorHandler);
